@@ -128,3 +128,195 @@ db.products.find({}, { _id: 0, name: 0, price: 0 }).pretty()
 
 db.products.find({}, { name: 0, price: 1 }).pretty()
 
+
+//sorting 
+
+//asc= 1
+
+db.products.find({}).sort({ rating: 1 }).pretty()
+
+//desc  = -1
+
+db.products.find({}).sort({ name: 1, rating: -1 }).limit(5).pretty()
+
+
+db.products.find({}).sort({ name: 1, rating: -1 }).skip(5).pretty()
+
+
+//update all products with category as electronics
+
+db.products.updateMany({}, { $set: { category: "electronics" } })
+
+
+db.products.updateOne({ category: "electronics" }, { $set: { category: "Mobile" } })
+
+//delete all products rating > 4.9
+
+db.products.find({ rating: { $gt: 4.9 } }).pretty()
+
+db.products.deleteMany({ rating: { $gt: 4.9 } })
+
+
+db.products.find({ rating: { $gte: 4.9 } }).pretty()
+
+
+db.products.deleteOne({ rating: { $gte: 4.9 } })
+
+
+//aggregation 
+
+
+db.orders.insertMany(
+    [
+        { _id: 0, productName: "Steel Beam", status: "new", quantity: 10 },
+        { _id: 1, productName: "Steel Beam", status: "urgent", quantity: 20 },
+        { _id: 2, productName: "Steel Beam", status: "urgent", quantity: 30 },
+        { _id: 3, productName: "Iron Rod", status: "new", quantity: 15 },
+        { _id: 4, productName: "Iron Rod", status: "urgent", quantity: 50 },
+        { _id: 5, productName: "Iron Rod", status: "urgent", quantity: 10 },
+    ]
+)
+
+
+db.orders.find().pretty()
+
+//match urgent products
+
+// select * from orders where status = "urgent"
+
+db.orders.aggregate([
+    //stage 1
+    {
+        $match: { status: "urgent" }
+    },
+    //stage -2
+    {
+        $group: {
+            _id: "$productName",
+            totalUrgentQuantity: { $sum: "$quantity" }
+        }
+    }
+])
+
+
+// { "_id" : "Steel Beam", "totalUrgentQuantity" : 50 }
+// { "_id" : "Iron Rod", "totalUrgentQuantity" : 60 }
+
+
+//group based on productName and sum its quantity
+// select sum(quantity) from orders where status = "urgent" group by productName
+
+
+
+//lookups => join
+
+db.order.insertMany([
+    { "_id": 1, "item": "almonds", "price": 12, "quantity": 2 },
+    { "_id": 2, "item": "pecans", "price": 20, "quantity": 1 },
+])
+
+db.inventory.insertMany([
+    { "_id": 1, "sku": "almonds", "description": "product 1", "instock": 120 },
+    { "_id": 2, "sku": "bread", "description": "product 2", "instock": 80 },
+    { "_id": 3, "sku": "cashews", "description": "product 3", "instock": 60 },
+    { "_id": 4, "sku": "pecans", "description": "product 4", "instock": 70 },
+    { "_id": 5, "sku": null, "description": "Incomplete" },
+    { "_id": 6 }
+])
+
+
+db.order.aggregate([
+    {
+        $lookup: {
+            from: "inventory",
+            localField: "item",
+            foreignField: "sku",
+            as: "combined_data",
+        }
+    }
+]).pretty()
+
+
+
+// "basic cursor methods - map, toArray, pretty, forEach, limit, count, sort
+
+//cursor  => pointer
+
+var myCursor = db.orders.find({ _id: 5 }).pretty()
+
+//next()
+
+var myCursor = db.orders.find({ _id: { $gt: 3 } }).pretty()
+while (myCursor.hasNext()) {
+    print(tojson(myCursor.next()))
+}
+
+
+//forEach
+var myCursor = db.orders.find({ _id: 5 }).pretty()
+myCursor.forEach(printjson) //func => print docu in JSON format
+
+var myCursor = db.orders.find()
+
+myCursor.forEach(function (product) {
+    print(`ProductName ${product.productName},  Quantity ${product.quantity}`)
+})
+
+
+//urgent products
+
+
+var urgentOrderCursor = db.orders.find({ status: 'urgent' })
+
+urgentOrderCursor.forEach(function (urgentOrder) {
+    print(`Order ID: ${urgentOrder._id},  Product Name: ${urgentOrder.productName}, status: ${urgentOrder.status}`)
+})
+
+
+// count()
+
+db.orders.find().count()
+
+db.inventory.find().count()
+
+db.products.find().count()
+
+// toArray()
+
+var allOrders = db.orders.find().toArray()
+allOrders.forEach(function (order) {
+    print(`Order ID: ${order._id}, Product Name: ${order.productName}`)
+})
+
+
+//map()
+
+var listProductName = db.orders.find().map(function (data) {
+    return data.productName
+})
+
+var listProductName = db.orders.find().map(function (data) {
+    return data.quantity * 100
+})
+
+
+// mapReduce Funct
+
+//define map func
+var mapFunc = function () {
+    emit(this.productName, this.quantity)
+}
+
+//define reduce func
+
+var reduceFunc = function (key, values) {
+    return Array.sum(values)
+}
+
+var result = db.orders.mapReduce(
+    mapFunc,
+    reduceFunc,
+    { out: "totalQuantity" } //specify collection
+)
+
+db.totalQuantity.find().forEach(printjson)

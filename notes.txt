@@ -1,0 +1,19 @@
+$match => it is used to filter docum(based on condition)
+$project => it will select some specific field from collection
+$group => group document based on some value
+$sort => sort data 
+$skip => skip no. of documents
+$limit => retrieve no. of documents
+$unwind => deconstruct Array, flat the array 
+$out  => write document output
+
+accumulators
+-------------
+
+sum
+count
+avg
+min
+max
+first
+last
