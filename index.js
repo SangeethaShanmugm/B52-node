@@ -1,4 +1,6 @@
 const express = require('express')//Inbuilt package
+const { MongoClient } = require('mongodb');
+
 const app = express()
 const PORT = 5000
 //req => what you send to server
@@ -107,25 +109,60 @@ const products = [
     },
 ];
 
+const MONGO_URL = "mongodb://127.0.0.1:27017"
+//"mongodb://localhost:27017"
+//Mongo connection 
+
+function createConnection() {
+    const client = new MongoClient(MONGO_URL);
+    client.connect()
+    console.log("MONGODB connected")
+    return client;
+}
+
+const client = createConnection()
+
+//REST API Endpoints
 app.get('/', (req, res) => {
     res.send('Hello Everyone')
 })
 
+// /products => all products
+// /products?category=mobile => only mobile products
+// /products?category=mobile&rating=5 => only mobile products with rating 5
+// /products?rating=5 => products with rating 5
+
 //get all products
-app.get('/products', (req, res) => {
+app.get('/products', async (req, res) => {
     // console.log(products)
-    const { category } = req.query
+    const { category, rating } = req.query
     console.log(req.query, category)
-    const result = products.filter((pd) => pd.category === category)
-    res.send(result);
+    if (req.query.rating) {
+        req.query.rating = +req.query.rating
+    }
+    const product = await client.db("b52-products").collection("products").find(req.query).toArray()
+    res.send(product);
 })
 
 //get product by id
-app.get('/products/:id', (req, res) => {
+app.get('/products/:id', async (req, res) => {
     const { id } = req.params
     console.log(req.params, id)
-    const result = products.find((pd) => pd.id === id)
-    res.send(result)
+    //db.products.findOne({id: "1"})
+    const product = await client.db("b52-products").collection("products").findOne({ id: id })
+    // const result = products.find((pd) => pd.id === id)
+    product ? res.send(product) : res.status(404).send({ message: "No Product Found" })
+})
+
+
+//delete product by id
+app.delete('/products/:id', async (req, res) => {
+    const { id } = req.params
+    console.log(req.params, id)
+    //db.products.findOne({id: "1"})
+    const product = await client.db("b52-products").collection("products").deleteOne({ id: id })
+    // const result = products.find((pd) => pd.id === id)
+    res.send(product)
 })
 
 

@@ -17,3 +17,14 @@ min
 max
 first
 last
+
+
+
+ // let filteredProducts = products; //copy by reference => same address
+
+    // if (category) {
+    //     filteredProducts = filteredProducts.filter((pd) => pd.category === category)
+    // }
+    // if (rating) {
+    //     filteredProducts = filteredProducts.filter((pd) => pd.rating == rating)
+    // }
