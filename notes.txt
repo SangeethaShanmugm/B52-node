@@ -2,6 +2,15 @@ $match => it is used to filter docum(based on condition)
 $project => it will select some specific field from collection
 $group => group document based on some value
 $sort => sort data 
+CRUD Operations
+---------------
+//C = Create = POST
+//R = Read   = GET
+//U = Update = PUT 
+//D = Delete = DELETE
+
+
+
 $skip => skip no. of documents
 $limit => retrieve no. of documents
 $unwind => deconstruct Array, flat the array 
@@ -28,3 +37,9 @@ last
     // if (rating) {
     //     filteredProducts = filteredProducts.filter((pd) => pd.rating == rating)
     // }
+
+
+    // /products => all products
+// /products?category=mobile => only mobile products
+// /products?category=mobile&rating=5 => only mobile products with rating 5
+// /products?rating=5 => products with rating 5
