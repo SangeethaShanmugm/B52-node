@@ -4,10 +4,14 @@ import express from 'express';
 import { MongoClient } from 'mongodb'
 // const dotenv = require('dotenv').config()
 import * as dotenv from 'dotenv'
-dotenv.config()
+import cors from "cors"
 import { productRouter } from './routes/products.js';
-
 const app = express()
+app.use(cors())
+
+dotenv.config()
+
+
 const PORT = process.env.PORT
 //req => what you send to server
 //res => what you receive from server
