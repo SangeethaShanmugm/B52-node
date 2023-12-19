@@ -22,4 +22,10 @@ async function addProducts(product) {
 }
 
 
-export { addProducts, deleteProductById, getProductById, getAllProducts }
+async function updateProducts(id, updatedProduct) {
+    return await client.db("b52-products").collection("products")
+        .updateOne({ id: id }, { $set: updatedProduct });
+}
+
+
+export { addProducts, deleteProductById, getProductById, getAllProducts, updateProducts }

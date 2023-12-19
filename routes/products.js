@@ -1,11 +1,11 @@
 import express from "express"
-import { getAllProducts, getProductById, deleteProductById, addProducts } from '../helper.js'
+import { getAllProducts, getProductById, deleteProductById, addProducts, updateProducts } from '../helper.js'
 
 
 const router = express.Router() //express router
 
 //get all products
-router.get('/products', async (req, res) => {
+router.get('/', async (req, res) => {
     // console.log(products)
     const { category, rating } = req.query
     console.log(req.query, category)
@@ -16,7 +16,7 @@ router.get('/products', async (req, res) => {
     res.send(product);
 })
 //get product by id
-router.get('/products/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
     const { id } = req.params
     console.log(req.params, id)
     //db.products.findOne({id: "1"})
@@ -25,7 +25,7 @@ router.get('/products/:id', async (req, res) => {
     product ? res.send(product) : res.status(404).send({ message: "No Product Found" })
 })
 //delete product by id
-router.delete('/products/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     const { id } = req.params
     console.log(req.params, id)
     //db.products.findOne({id: "1"})
@@ -33,7 +33,7 @@ router.delete('/products/:id', async (req, res) => {
     // const result = products.find((pd) => pd.id === id)
     res.send(product)
 })
-router.post("/products", async (req, res) => {
+router.post("/", async (req, res) => {
     const { id, name, poster, price, rating, summary, category } = req.body
 
     //check if required fields are present in req.body || Validate 
@@ -57,5 +57,16 @@ router.post("/products", async (req, res) => {
 
 })
 
+//update products
+
+router.put('/:id', async (req, res) => {
+    const { id } = req.params
+    const updatedProduct = req.body
+    console.log(req.params, id)
+    //db.products.findOne({id: "1"})
+    const result = await updateProducts(id, updatedProduct)
+    // const result = products.find((pd) => pd.id === id)
+    res.send(result)
+})
 
 export const productRouter = router

@@ -27,7 +27,7 @@ async function createConnection() {
     return client;
 }
 
-export const client = createConnection();
+export const client = await createConnection();
 
 
 //REST API Endpoints
