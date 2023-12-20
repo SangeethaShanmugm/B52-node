@@ -1,11 +1,11 @@
 import express from "express"
 import { getAllProducts, getProductById, deleteProductById, addProducts, updateProducts } from '../helper.js'
-
+import { auth } from "../middleware/auth.js"
 
 const router = express.Router() //express router
 
 //get all products
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
     // console.log(products)
     const { category, rating } = req.query
     console.log(req.query, category)
@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
     res.send(product);
 })
 //get product by id
-router.get('/:id', async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
     const { id } = req.params
     console.log(req.params, id)
     //db.products.findOne({id: "1"})

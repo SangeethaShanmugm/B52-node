@@ -5,7 +5,9 @@ import { MongoClient } from 'mongodb'
 // const dotenv = require('dotenv').config()
 import * as dotenv from 'dotenv'
 import cors from "cors"
+import bcrypt from "bcrypt"
 import { productRouter } from './routes/products.js';
+import { userRouter } from "./routes/users.js"
 const app = express()
 app.use(cors())
 
@@ -42,7 +44,9 @@ app.get('/', (req, res) => {
 app.use("/products", productRouter)
 
 
-app.listen(PORT, () => console.log("Server started on the PORT", PORT))
+app.use("/users", userRouter)
 
+
+app.listen(PORT, () => console.log("Server started on the PORT", PORT))
 
 

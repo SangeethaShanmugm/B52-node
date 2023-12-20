@@ -1,5 +1,5 @@
 import { client } from "./index.js"
-
+import bcrypt from "bcrypt"
 
 
 async function getAllProducts(req) {
@@ -28,4 +28,25 @@ async function updateProducts(id, updatedProduct) {
 }
 
 
-export { addProducts, deleteProductById, getProductById, getAllProducts, updateProducts }
+async function genPassword(password) {
+    const salt = await bcrypt.genSalt(10) //= bcrypt.genSalt(no. of rounds) 
+    console.log(salt);
+    const hashedPassword = await bcrypt.hash(password, salt)
+    console.log(hashedPassword);
+    return hashedPassword
+}
+
+async function createUser(username, hashPassword) {
+    return await client.db("b52-products").collection("users")
+        .insertOne({ username: username, password: hashPassword });
+}
+
+async function getUserByName(username) {
+    return await client.db("b52-products").collection("users")
+        .findOne({ username: username });
+}
+
+
+
+
+export { addProducts, deleteProductById, getProductById, getAllProducts, updateProducts, genPassword, createUser, getUserByName }
